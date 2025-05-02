@@ -59,7 +59,8 @@ class Camera:
         rx = x*pyxel.cos(a)-y*pyxel.sin(a)
         ry = x*pyxel.sin(a)+y*pyxel.cos(a)
         return (rx, ry, z)
-    def rotate(self, x: float, y: float, z: float, ax: float, ay: float, az: float) -> tuple:
+    def rotate(self, x: float, y: float, z: float, ax: float, ay: float,
+               az: float) -> tuple:
         x, y, z = self.__rotate_x(x, y, z, ax)
         x, y, z = self.__rotate_y(x, y, z, ay)
         x, y, z = self.__rotate_z(x, y, z, az)
@@ -81,7 +82,8 @@ class Model:
         self.__colors = colors
         self.__vertices = vertices
     def get_copy(self) -> tuple:
-        return ([i for i in self.__indices], [i for i in self.__colors], [i for i in self.__vertices])
+        return ([i for i in self.__indices], [i for i in self.__colors],
+                [i for i in self.__vertices])
 
 class Entity:
     def __init__(self, model: Model):
@@ -119,7 +121,8 @@ class Renderer:
         v3 = vertices[indices[2]]
         # Calculate the depth of the triangle
         return (v1[2]+v2[2]+v3[2])/3
-    def __render_from_arrays(self, vertices: list, indices: list, colors: list):
+    def __render_from_arrays(self, vertices: list, indices: list,
+                             colors: list):
         for i in range(len(indices)):
             m = self.__triangle_depth(vertices, indices[i])
             p = i
@@ -145,9 +148,12 @@ class Renderer:
                 v2 = self.camera.project(v2[0], v2[1], v2[2])
                 v3 = self.camera.project(v3[0], v3[1], v3[2])
                 
-                if (v1[0] < 0 or v1[1] < 0 or v1[0] > WIDTH or v1[1] > HEIGHT or
-                    v2[0] < 0 or v2[1] < 0 or v2[0] > WIDTH or v2[1] > HEIGHT or
-                    v3[0] < 0 or v3[1] < 0 or v3[0] > WIDTH or v3[1] > HEIGHT):
+                if (v1[0] < 0 or v1[1] < 0 or v1[0] > WIDTH or
+                    v1[1] > HEIGHT or
+                    v2[0] < 0 or v2[1] < 0 or v2[0] > WIDTH or
+                    v2[1] > HEIGHT or
+                    v3[0] < 0 or v3[1] < 0 or v3[0] > WIDTH or
+                    v3[1] > HEIGHT):
                     continue
                 
                 pyxel.tri(v1[0], v1[1], v2[0], v2[1], v3[0], v3[1], colors[i])
@@ -181,7 +187,8 @@ class TerrainHandler:
         for y in range(h):
             for x in range(w):
                 self.terrain_pos.append((x*cw, y*ch))
-                self.terrain.append(Terrain(seed).generate(-x*cw, -y*ch, cw, ch))
+                self.terrain.append(Terrain(seed).generate(-x*cw, -y*ch, cw,
+                                                           ch))
     def update(self, x: int, y: int):
         
         cx = x//self._cw*self._cw-self._cw*(self._w/2)
@@ -196,8 +203,9 @@ class TerrainHandler:
         for y in range(self._h):
             for x in range(self._w):
                 self.terrain_pos.append((cx+x*self._cw, cy+y*self._ch))
-                self.terrain.append(Terrain(self._seed).generate(cx-x*self._cw, cy-y*self._ch,
-                                    self._cw, self._ch))
+                self.terrain.append(Terrain(self._seed)
+                                    .generate(cx-x*self._cw, cy-y*self._ch,
+                                              self._cw, self._ch))
         self._cx, self._cy = cx, cy
 
 pyxel.init(WIDTH, HEIGHT, title = "3D")
@@ -288,11 +296,15 @@ SPEED = 1
 
 def update():
     if pyxel.btn(pyxel.KEY_UP):
-        renderer.camera.x += (pyxel.cos(renderer.camera.ry-45)-pyxel.sin(renderer.camera.ry-45))*SPEED
-        renderer.camera.z += (pyxel.sin(renderer.camera.ry-45)+pyxel.cos(renderer.camera.ry-45))*SPEED
+        renderer.camera.x += (pyxel.cos(renderer.camera.ry-45)-
+                              pyxel.sin(renderer.camera.ry-45))*SPEED
+        renderer.camera.z += (pyxel.sin(renderer.camera.ry-45)+
+                              pyxel.cos(renderer.camera.ry-45))*SPEED
     if pyxel.btn(pyxel.KEY_DOWN):
-        renderer.camera.x -= (pyxel.cos(renderer.camera.ry-45)-pyxel.sin(renderer.camera.ry-45))*SPEED
-        renderer.camera.z -= (pyxel.sin(renderer.camera.ry-45)+pyxel.cos(renderer.camera.ry-45))*SPEED
+        renderer.camera.x -= (pyxel.cos(renderer.camera.ry-45)-
+                              pyxel.sin(renderer.camera.ry-45))*SPEED
+        renderer.camera.z -= (pyxel.sin(renderer.camera.ry-45)+
+                              pyxel.cos(renderer.camera.ry-45))*SPEED
     if pyxel.btn(pyxel.KEY_LEFT):
         renderer.camera.ry -= 2
     if pyxel.btn(pyxel.KEY_RIGHT):
@@ -313,11 +325,14 @@ def update():
     """
     
     """
-    v, i = terrain.generate(-int(renderer.camera.x)-MAP_W/2, -int(renderer.camera.z)-MAP_H/2, MAP_W, MAP_H)
+    v, i = terrain.generate(-int(renderer.camera.x)-MAP_W/2,
+                            -int(renderer.camera.z)-MAP_H/2, MAP_W, MAP_H)
     #print(v, i)
-    entity.x, entity.z = int(renderer.camera.x)-MAP_W/2, int(renderer.camera.z)-MAP_H/2
+    entity.x, entity.z = int(renderer.camera.x)-MAP_W/2,
+                         int(renderer.camera.z)-MAP_H/2
 
-    c = [(int(renderer.camera.y)*MAP_W+int(renderer.camera.x)+i)%15+1 for i in range(len(i))]
+    c = [(int(renderer.camera.y)*MAP_W+int(renderer.camera.x)+i)%15+1
+         for i in range(len(i))]
     
     model.update(i, c, v)
     """
@@ -334,3 +349,4 @@ def update():
         
 
 pyxel.run(update, draw)
+
