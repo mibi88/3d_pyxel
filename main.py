@@ -307,14 +307,13 @@ def update():
     global last
     new = time.time()
     delta = (last-new)*30
-    print(delta)
     last = new
     if pyxel.btn(pyxel.KEY_UP):
-        renderer.camera.z += pyxel.cos(-renderer.camera.ry)*SPEED*delta
-        renderer.camera.x += pyxel.sin(-renderer.camera.ry)*SPEED*delta
-    if pyxel.btn(pyxel.KEY_DOWN):
         renderer.camera.z -= pyxel.cos(-renderer.camera.ry)*SPEED*delta
         renderer.camera.x -= pyxel.sin(-renderer.camera.ry)*SPEED*delta
+    if pyxel.btn(pyxel.KEY_DOWN):
+        renderer.camera.z += pyxel.cos(-renderer.camera.ry)*SPEED*delta
+        renderer.camera.x += pyxel.sin(-renderer.camera.ry)*SPEED*delta
     if pyxel.btn(pyxel.KEY_LEFT):
         renderer.camera.ry -= 2*delta
     if pyxel.btn(pyxel.KEY_RIGHT):
