@@ -1,6 +1,8 @@
 # A small 3D demo using pyxel made in ca. 6 hours without searching anything
 # online (only having some doc on paper) without having used pyxel before.
 #
+# Note: This version contains bug fixes made afterwards.
+#
 # This software is licensed under the BSD-3-Clause license:
 #
 # Copyright 2025 Mibi88
@@ -35,6 +37,7 @@
 # Camera.__rotate_x is not working correctly
 
 import pyxel
+import time
 
 WIDTH = 256
 HEIGHT = 256
@@ -43,17 +46,21 @@ class Camera:
     def __init__(self):
         self.x, self.y, self.z = 0, 0, 0
         self.rx, self.ry, self.rz = 0, 0, 0
-        self.__fov = 60
+        self.__fov = 80
     def project(self, x: float, y: float, z: float) -> tuple:
         if not z: z = 0.0001
-        return (x*(self.__fov/z)+WIDTH/2, y*(self.__fov/z)+HEIGHT/2)
+        a = self.__fov/2
+        tan_a = pyxel.sin(a)/pyxel.cos(a)
+        f = WIDTH/(2*tan_a)
+        m = f/z
+        return (x*m+WIDTH/2, y*m+HEIGHT/2)
     def __rotate_x(self, x: float, y: float, z: float, a: float) -> tuple:
         ry = y*pyxel.cos(a)-z*pyxel.sin(a)
         rz = y*pyxel.sin(a)+z*pyxel.cos(a)
         return (x, ry, rz)
     def __rotate_y(self, x: float, y: float, z: float, a: float) -> tuple:
-        rx = z*pyxel.cos(a)-x*pyxel.sin(a)
-        rz = z*pyxel.sin(a)+x*pyxel.cos(a)
+        rz = z*pyxel.cos(a)-x*pyxel.sin(a)
+        rx = z*pyxel.sin(a)+x*pyxel.cos(a)
         return (rx, y, rz)
     def __rotate_z(self, x: float, y: float, z: float, a: float) -> tuple:
         rx = x*pyxel.cos(a)-y*pyxel.sin(a)
@@ -294,21 +301,24 @@ MAP_H = 24
 
 SPEED = 1
 
+last = time.time()
+
 def update():
+    global last
+    new = time.time()
+    delta = (last-new)*30
+    print(delta)
+    last = new
     if pyxel.btn(pyxel.KEY_UP):
-        renderer.camera.x += (pyxel.cos(renderer.camera.ry-45)-
-                              pyxel.sin(renderer.camera.ry-45))*SPEED
-        renderer.camera.z += (pyxel.sin(renderer.camera.ry-45)+
-                              pyxel.cos(renderer.camera.ry-45))*SPEED
+        renderer.camera.z += pyxel.cos(-renderer.camera.ry)*SPEED*delta
+        renderer.camera.x += pyxel.sin(-renderer.camera.ry)*SPEED*delta
     if pyxel.btn(pyxel.KEY_DOWN):
-        renderer.camera.x -= (pyxel.cos(renderer.camera.ry-45)-
-                              pyxel.sin(renderer.camera.ry-45))*SPEED
-        renderer.camera.z -= (pyxel.sin(renderer.camera.ry-45)+
-                              pyxel.cos(renderer.camera.ry-45))*SPEED
+        renderer.camera.z -= pyxel.cos(-renderer.camera.ry)*SPEED*delta
+        renderer.camera.x -= pyxel.sin(-renderer.camera.ry)*SPEED*delta
     if pyxel.btn(pyxel.KEY_LEFT):
-        renderer.camera.ry -= 2
+        renderer.camera.ry -= 2*delta
     if pyxel.btn(pyxel.KEY_RIGHT):
-        renderer.camera.ry += 2
+        renderer.camera.ry += 2*delta
     
     """
     terrain_handler.update(renderer.camera.x, renderer.camera.z)
@@ -344,8 +354,8 @@ def update():
     v, i = terrain.generate(entity.x, entity.z, MAP_W, MAP_H)
     """
     
-    cube.rx += 1
-    cube.ry += 1
+    cube.rz -= 1*delta
+    cube.ry += 1*delta
         
 
 pyxel.run(update, draw)
